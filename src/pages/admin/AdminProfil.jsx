@@ -2,15 +2,16 @@ import React, { useState, useRef } from 'react';
 import {
   Building2,
   ShieldCheck,
-  CheckCircle2,
   Image as ImageIcon,
   Upload,
   RefreshCw,
   Sparkles,
   MapPin,
   Tag,
+  Save,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
 
 const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=1000&q=80';
@@ -44,7 +45,8 @@ const PRESET_IMAGES = [
 
 export default function AdminProfil() {
   const { institutionInfo, branches, updateInstitutionInfo, updateBranch } = useBmt();
-  const [feedbackMsg, setFeedbackMsg] = useState('');
+  const { showToast } = useToast();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const fileInputRef = useRef(null);
 
   // 1. Form State untuk Foto Tampilan Beranda
@@ -67,19 +69,33 @@ export default function AdminProfil() {
   // 3. Form State untuk Cabang
   const [branchesForm, setBranchesForm] = useState([...branches]);
 
+  const updatePhotoField = (field, value) => {
+    setPhotoForm((prev) => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
+  };
+
+  const updateInfoField = (field, value) => {
+    setInfoForm((prev) => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
+  };
+
   // Handler Upload Foto Lokal (FileReader -> Data URL)
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Harap pilih file gambar (JPG, PNG, atau WEBP).');
+      showToast('Harap pilih file gambar (JPG, PNG, atau WEBP).', 'error', {
+        title: 'Format File Tidak Didukung',
+      });
       return;
     }
 
     // Batasan ukuran 4 MB agar performa tetap prima
     if (file.size > 4 * 1024 * 1024) {
-      alert('Ukuran file foto maksimal 4 MB.');
+      showToast('Ukuran file foto maksimal 4 MB.', 'error', {
+        title: 'Ukuran File Terlalu Besar',
+      });
       return;
     }
 
@@ -87,22 +103,15 @@ export default function AdminProfil() {
     reader.onload = (event) => {
       const dataUrl = event.target?.result;
       if (typeof dataUrl === 'string') {
-        setPhotoForm((prev) => ({ ...prev, heroImage: dataUrl }));
+        updatePhotoField('heroImage', dataUrl);
+        showToast(
+          'Foto berhasil dipilih. Klik "Simpan Perubahan" untuk menerapkan ke website.',
+          'info',
+          { title: 'Pratinjau Diperbarui' }
+        );
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  // Simpan Foto Tampilan Beranda
-  const handleSavePhoto = (e) => {
-    e.preventDefault();
-    updateInstitutionInfo({
-      heroImage: photoForm.heroImage,
-      heroBadge: photoForm.heroBadge,
-      region: photoForm.region,
-    });
-    setFeedbackMsg('Foto tampilan bar awal beranda berhasil diperbarui!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   // Reset Foto ke Default
@@ -117,36 +126,39 @@ export default function AdminProfil() {
       heroBadge: 'Kantor Pelayanan',
       region: 'Gunungkidul, D.I. Yogyakarta',
     });
-    setFeedbackMsg('Foto beranda berhasil dikembalikan ke foto bawaan resmi!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
+    showToast('Foto beranda berhasil dikembalikan ke foto bawaan resmi!', 'success');
   };
 
-  // Simpan Identitas Lembaga
-  const handleSaveInfo = (e) => {
-    e.preventDefault();
-    updateInstitutionInfo(infoForm);
-    setFeedbackMsg('Identitas resmi lembaga berhasil diperbarui!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
-  };
-
-  // Simpan Kantor Cabang
+  // Update Kantor Cabang
   const handleBranchChange = (index, field, value) => {
     setBranchesForm((prev) => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };
       return copy;
     });
+    setHasUnsavedChanges(true);
   };
 
-  const handleSaveBranches = (e) => {
+  // Simpan Seluruh Perubahan (Foto Beranda, Identitas Lembaga, & Kantor Cabang)
+  const handleSaveAll = (e) => {
     e.preventDefault();
+    updateInstitutionInfo({
+      heroImage: photoForm.heroImage,
+      heroBadge: photoForm.heroBadge,
+      region: photoForm.region,
+      ...infoForm,
+    });
     branchesForm.forEach((b) => updateBranch(b.id, b));
-    setFeedbackMsg('Informasi kantor cabang berhasil diperbarui!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
+    setHasUnsavedChanges(false);
+    showToast(
+      'Seluruh perubahan foto beranda, identitas lembaga, dan kantor cabang berhasil disimpan!',
+      'success',
+      { title: 'Perubahan Tersimpan' }
+    );
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24">
       {/* Header Halaman */}
       <div>
         <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900">
@@ -157,41 +169,35 @@ export default function AdminProfil() {
         </p>
       </div>
 
-      {feedbackMsg && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{feedbackMsg}</span>
-        </div>
-      )}
+      <form id="admin-profil-form" onSubmit={handleSaveAll} className="space-y-8">
+        {/* 1. BAGIAN KHUSUS: EDIT FOTO TAMPILAN PADA BAR AWAL BERANDA */}
+        <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-stone-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-stone-900">
+                  Edit Foto Tampilan Bar Awal Beranda
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Ubah gambar aktivitas pelayanan koperasi yang tampil di bingkai kanan bagian Beranda (Hero).
+                </p>
+              </div>
+            </div>
 
-      {/* 1. BAGIAN KHUSUS: EDIT FOTO TAMPILAN PADA BAR AWAL BERANDA */}
-      <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-stone-200">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
-              <ImageIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-extrabold text-stone-900">
-                Edit Foto Tampilan Bar Awal Beranda
-              </h3>
-              <p className="text-xs text-stone-500">
-                Ubah gambar aktivitas pelayanan koperasi yang tampil di bingkai kanan bagian Beranda (Hero).
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={handleResetPhoto}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-stone-600 hover:text-amber-700 hover:bg-stone-100 border border-stone-300 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reset Foto Default</span>
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleResetPhoto}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-stone-600 hover:text-amber-700 hover:bg-stone-100 border border-stone-300 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset Foto Default</span>
-          </button>
-        </div>
-
-        <form onSubmit={handleSavePhoto} className="space-y-6">
+          <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Sisi Kiri: Kontrol Input & Upload Foto */}
             <div className="lg:col-span-7 space-y-5 text-xs">
@@ -235,9 +241,7 @@ export default function AdminProfil() {
                   type="url"
                   placeholder="https://images.unsplash.com/..."
                   value={photoForm.heroImage}
-                  onChange={(e) =>
-                    setPhotoForm((prev) => ({ ...prev, heroImage: e.target.value }))
-                  }
+                  onChange={(e) => updatePhotoField('heroImage', e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium text-xs focus:border-emerald-800 focus:outline-none bg-white"
                 />
                 <span className="text-[10px] text-stone-500 block">
@@ -256,9 +260,7 @@ export default function AdminProfil() {
                     <button
                       key={preset.id}
                       type="button"
-                      onClick={() =>
-                        setPhotoForm((prev) => ({ ...prev, heroImage: preset.url }))
-                      }
+                      onClick={() => updatePhotoField('heroImage', preset.url)}
                       className={`group p-1.5 rounded-xl border text-left transition-all overflow-hidden ${
                         photoForm.heroImage === preset.url
                           ? 'border-emerald-800 ring-2 ring-emerald-800/20 bg-emerald-50/50'
@@ -290,9 +292,7 @@ export default function AdminProfil() {
                   <input
                     type="text"
                     value={photoForm.heroBadge}
-                    onChange={(e) =>
-                      setPhotoForm((prev) => ({ ...prev, heroBadge: e.target.value }))
-                    }
+                    onChange={(e) => updatePhotoField('heroBadge', e.target.value)}
                     placeholder="Kantor Pelayanan"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold text-xs focus:border-emerald-800 focus:outline-none"
                   />
@@ -306,9 +306,7 @@ export default function AdminProfil() {
                   <input
                     type="text"
                     value={photoForm.region}
-                    onChange={(e) =>
-                      setPhotoForm((prev) => ({ ...prev, region: e.target.value }))
-                    }
+                    onChange={(e) => updatePhotoField('region', e.target.value)}
                     placeholder="Gunungkidul, D.I. Yogyakarta"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium text-xs focus:border-emerald-800 focus:outline-none"
                   />
@@ -347,7 +345,7 @@ export default function AdminProfil() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-stone-900 leading-tight">
-                        {institutionInfo.fullName || 'KSPP SYARIAH BMT MAS'}
+                        {infoForm.fullName || institutionInfo.fullName || 'KSPP SYARIAH BMT MAS'}
                       </h4>
                       <p className="text-[10px] text-stone-500">
                         {photoForm.region || 'Gunungkidul, D.I. Yogyakarta'}
@@ -366,230 +364,217 @@ export default function AdminProfil() {
               </p>
             </div>
           </div>
-
-          <div className="pt-4 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-stone-500">
-              Perubahan foto langsung tersimpan dan aktif seketika.
-            </span>
-
-            <button
-              type="submit"
-              className="px-6 py-2.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white font-extrabold text-xs shadow-sm transition-all"
-            >
-              Simpan Foto Beranda
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* 2. Legalitas & Identitas Lembaga */}
-      <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
-          <div className="w-10 h-10 rounded-xl bg-emerald-900 text-amber-300 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-stone-900">
-              Identitas Resmi Lembaga Koperasi
-            </h3>
-            <p className="text-xs text-stone-500">
-              Data yang tampil pada header pita resmi, footer, dan kartu profil.
-            </p>
           </div>
         </div>
 
-        <form onSubmit={handleSaveInfo} className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Nama Resmi Lembaga
-              </label>
-              <input
-                type="text"
-                required
-                value={infoForm.fullName}
-                onChange={(e) => setInfoForm({ ...infoForm, fullName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-              />
+        {/* 2. Legalitas & Identitas Lembaga */}
+        <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
+            <div className="w-10 h-10 rounded-xl bg-emerald-900 text-amber-300 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Nomor Badan Hukum Koperasi
-              </label>
-              <input
-                type="text"
-                required
-                value={infoForm.legalNumber}
-                onChange={(e) => setInfoForm({ ...infoForm, legalNumber: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-              />
+            <div>
+              <h3 className="text-base font-extrabold text-stone-900">
+                Identitas Resmi Lembaga Koperasi
+              </h3>
+              <p className="text-xs text-stone-500">
+                Data yang tampil pada header pita resmi, footer, dan kartu profil.
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Sub Nama / Brand
-              </label>
-              <input
-                type="text"
-                required
-                value={infoForm.subName}
-                onChange={(e) => setInfoForm({ ...infoForm, subName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Tagline Utama
-              </label>
-              <input
-                type="text"
-                required
-                value={infoForm.tagline}
-                onChange={(e) => setInfoForm({ ...infoForm, tagline: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Call Center Pelayanan
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="(0274) 2903137"
-                value={infoForm.callCenter}
-                onChange={(e) => setInfoForm({ ...infoForm, callCenter: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-bold text-stone-700 uppercase">
-                Nomor WhatsApp Kantor Pusat (Format: 628...)
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="62859121635023"
-                value={infoForm.waHeadOffice}
-                onChange={(e) => setInfoForm({ ...infoForm, waHeadOffice: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="pt-3 flex justify-end">
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
-            >
-              Simpan Identitas Lembaga
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* 3. Informasi Kantor Cabang Semanu & Paliyan */}
-      <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
-          <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-stone-900">
-              Pengaturan Alamat &amp; Kontak Kantor Cabang
-            </h3>
-            <p className="text-xs text-stone-500">
-              Kantor Pusat Semanu dan Kantor Cabang Pelayanan Paliyan.
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSaveBranches} className="space-y-6 text-xs">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {branchesForm.map((b, idx) => (
-              <div
-                key={b.id}
-                className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-sm text-stone-900">
-                    {b.name}
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
-                    {b.code}
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-600 uppercase text-[10px]">
-                    Alamat Lengkap
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={b.address}
-                    onChange={(e) => handleBranchChange(idx, 'address', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-bold text-stone-600 uppercase text-[10px]">
-                      No. WhatsApp (Format Link)
-                    </label>
-                    <input
-                      type="text"
-                      value={b.whatsappNumber}
-                      onChange={(e) => handleBranchChange(idx, 'whatsappNumber', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-bold text-stone-600 uppercase text-[10px]">
-                      Tampilan Teks No. WA
-                    </label>
-                    <input
-                      type="text"
-                      value={b.whatsappDisplay}
-                      onChange={(e) => handleBranchChange(idx, 'whatsappDisplay', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-600 uppercase text-[10px]">
-                    Jam Operasional
-                  </label>
-                  <input
-                    type="text"
-                    value={b.hours}
-                    onChange={(e) => handleBranchChange(idx, 'hours', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
-                  />
-                </div>
+          <div className="space-y-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Nama Resmi Lembaga
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={infoForm.fullName}
+                  onChange={(e) => updateInfoField('fullName', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+                />
               </div>
-            ))}
+
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Nomor Badan Hukum Koperasi
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={infoForm.legalNumber}
+                  onChange={(e) => updateInfoField('legalNumber', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Sub Nama / Brand
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={infoForm.subName}
+                  onChange={(e) => updateInfoField('subName', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Tagline Utama
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={infoForm.tagline}
+                  onChange={(e) => updateInfoField('tagline', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Call Center Pelayanan
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="(0274) 2903137"
+                  value={infoForm.callCenter}
+                  onChange={(e) => updateInfoField('callCenter', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-stone-700 uppercase">
+                  Nomor WhatsApp Kantor Pusat (Format: 628...)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="62859121635023"
+                  value={infoForm.waHeadOffice}
+                  onChange={(e) => updateInfoField('waHeadOffice', e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Informasi Kantor Cabang Semanu & Paliyan */}
+        <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-stone-900">
+                Pengaturan Alamat &amp; Kontak Kantor Cabang
+              </h3>
+              <p className="text-xs text-stone-500">
+                Kantor Pusat Semanu dan Kantor Cabang Pelayanan Paliyan.
+              </p>
+            </div>
           </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
-            >
-              Simpan Data Kantor Cabang
-            </button>
+          <div className="space-y-6 text-xs">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {branchesForm.map((b, idx) => (
+                <div
+                  key={b.id}
+                  className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-sm text-stone-900">
+                      {b.name}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
+                      {b.code}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-stone-600 uppercase text-[10px]">
+                      Alamat Lengkap
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={b.address}
+                      onChange={(e) => handleBranchChange(idx, 'address', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="font-bold text-stone-600 uppercase text-[10px]">
+                        No. WhatsApp (Format Link)
+                      </label>
+                      <input
+                        type="text"
+                        value={b.whatsappNumber}
+                        onChange={(e) => handleBranchChange(idx, 'whatsappNumber', e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-stone-600 uppercase text-[10px]">
+                        Tampilan Teks No. WA
+                      </label>
+                      <input
+                        type="text"
+                        value={b.whatsappDisplay}
+                        onChange={(e) => handleBranchChange(idx, 'whatsappDisplay', e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-stone-600 uppercase text-[10px]">
+                      Jam Operasional
+                    </label>
+                    <input
+                      type="text"
+                      value={b.hours}
+                      onChange={(e) => handleBranchChange(idx, 'hours', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-300 font-medium focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </form>
+        </div>
+      </form>
+
+      {/* Satu Tombol Simpan Melayang di Layer Paling Atas */}
+      <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-8 z-[80] flex flex-col items-end gap-2">
+        {hasUnsavedChanges && (
+          <span className="px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold shadow-md">
+            Ada perubahan belum disimpan
+          </span>
+        )}
+        <button
+          type="submit"
+          form="admin-profil-form"
+          className="quiet-btn inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-emerald-950 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm shadow-2xl border-2 border-amber-400/80 transition-all"
+        >
+          <Save className="w-4 h-4 text-amber-300" />
+          <span>Simpan Perubahan</span>
+        </button>
       </div>
     </div>
   );

@@ -78,6 +78,21 @@
   .quiet-btn:active {
     transform: translateY(1px) scale(0.985);
   }
+
+  .toast-pop-in {
+    animation: toastPopIn var(--m-in) var(--ease) both;
+  }
+}
+
+@keyframes toastPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

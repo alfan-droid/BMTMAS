@@ -5,19 +5,20 @@ import {
   Pencil,
   Trash2,
   CheckCircle2,
-  X,
   AlertTriangle,
   Star,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
+import AdminModal from '../../components/admin/AdminModal';
 
 export default function AdminTestimoni() {
   const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useBmt();
+  const { showToast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [feedbackMsg, setFeedbackMsg] = useState('');
 
   const [formData, setFormData] = useState({
     member_name: '',
@@ -60,21 +61,19 @@ export default function AdminTestimoni() {
 
     if (editingItem) {
       await updateTestimonial(editingItem.id, payload);
-      setFeedbackMsg(`Testimoni dari ${payload.member_name} berhasil diperbarui!`);
+      showToast(`Testimoni dari ${payload.member_name} berhasil diperbarui!`, 'success');
     } else {
       await addTestimonial(payload);
-      setFeedbackMsg(`Testimoni baru berhasil ditambahkan!`);
+      showToast('Testimoni baru berhasil ditambahkan!', 'success');
     }
 
     setModalOpen(false);
-    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   const handleDelete = async (id) => {
     await deleteTestimonial(id);
     setDeleteConfirmId(null);
-    setFeedbackMsg('Testimoni berhasil dihapus!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
+    showToast('Testimoni berhasil dihapus!', 'success');
   };
 
   return (
@@ -98,13 +97,6 @@ export default function AdminTestimoni() {
           <span>Tambah Testimoni Baru</span>
         </button>
       </div>
-
-      {feedbackMsg && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{feedbackMsg}</span>
-        </div>
-      )}
 
       {/* Testimonials Grid / List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -167,97 +159,87 @@ export default function AdminTestimoni() {
       </div>
 
       {/* Add / Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-stone-950/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-stone-200 my-8 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-              <h3 className="text-lg font-extrabold text-stone-900">
-                {editingItem ? 'Edit Testimoni Anggota' : 'Tambah Testimoni Baru'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Nama Lengkap Anggota
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Bpk. Kelik Yuniantoro, S.Sos, MM"
-                  value={formData.member_name}
-                  onChange={(e) => setFormData({ ...formData, member_name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Peran / Jabatan / Profesi
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Kepala Dinas Perdagangan Gunungkidul"
-                  value={formData.role_title}
-                  onChange={(e) => setFormData({ ...formData, role_title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Tagline / Highlight Badge
-                </label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Aman, Berkah & Bebas Riba"
-                  value={formData.highlight_tag}
-                  onChange={(e) => setFormData({ ...formData, highlight_tag: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Ulasan / Testimoni
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Tulis ulasan pengalaman menabung atau berdeposito di BMT MAS..."
-                  value={formData.quote}
-                  onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-stone-200 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-stone-600 font-bold hover:bg-stone-100"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
-                >
-                  Simpan Testimoni
-                </button>
-              </div>
-            </form>
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingItem ? 'Edit Testimoni Anggota' : 'Tambah Testimoni Baru'}
+        maxWidthClass="max-w-lg"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2.5 rounded-xl text-xs text-stone-600 font-bold hover:bg-stone-100"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form="testimoni-form"
+              className="px-5 py-2.5 rounded-xl text-xs bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
+            >
+              Simpan Testimoni
+            </button>
+          </>
+        }
+      >
+        <form id="testimoni-form" onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Nama Lengkap Anggota
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Contoh: Bpk. Kelik Yuniantoro, S.Sos, MM"
+              value={formData.member_name}
+              onChange={(e) => setFormData({ ...formData, member_name: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+            />
           </div>
-        </div>
-      )}
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Peran / Jabatan / Profesi
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Contoh: Kepala Dinas Perdagangan Gunungkidul"
+              value={formData.role_title}
+              onChange={(e) => setFormData({ ...formData, role_title: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Tagline / Highlight Badge
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: Aman, Berkah & Bebas Riba"
+              value={formData.highlight_tag}
+              onChange={(e) => setFormData({ ...formData, highlight_tag: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Ulasan / Testimoni
+            </label>
+            <textarea
+              rows={4}
+              required
+              placeholder="Tulis ulasan pengalaman menabung atau berdeposito di BMT MAS..."
+              value={formData.quote}
+              onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+        </form>
+      </AdminModal>
 
       {/* Delete Confirmation */}
       {deleteConfirmId && (

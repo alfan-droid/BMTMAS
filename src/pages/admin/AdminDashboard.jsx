@@ -8,7 +8,6 @@ import {
   ExternalLink,
   ShieldCheck,
   RefreshCw,
-  CheckCircle2,
   AlertTriangle,
   Database,
   ArrowRight,
@@ -19,6 +18,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabaseClient';
 
 export default function AdminDashboard() {
@@ -30,14 +30,17 @@ export default function AdminDashboard() {
     institutionInfo,
     resetToDefaults,
   } = useBmt();
+  const { showToast } = useToast();
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleReset = () => {
     resetToDefaults();
     setResetConfirmOpen(false);
-    setResetSuccess(true);
-    setTimeout(() => setResetSuccess(false), 3500);
+    showToast(
+      'Seluruh data katalog produk, suku bunga deposito, dan testimoni berhasil dipulihkan sesuai brosur resmi BMT MAS!',
+      'success',
+      { title: 'Data Berhasil Direset' }
+    );
   };
 
   const isSupabaseActive = !!supabase;
@@ -77,15 +80,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-
-      {resetSuccess && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-3 shadow-xs animate-in fade-in duration-300">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>
-            Seluruh data katalog produk, suku bunga deposito, dan testimoni berhasil dipulihkan sesuai brosur resmi BMT MAS!
-          </span>
-        </div>
-      )}
 
       {/* 2. Key Metrics Bento Grid (4 Cards) */}
       <section aria-label="Ringkasan Statistik Sistem">

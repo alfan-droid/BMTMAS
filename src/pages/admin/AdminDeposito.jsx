@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import {
   TrendingUp,
   Pencil,
-  CheckCircle2,
-  X,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
+import AdminModal from '../../components/admin/AdminModal';
 
 const MONTH_KEYS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 export default function AdminDeposito() {
   const { depositoRates, updateDepositoRate } = useBmt();
+  const { showToast } = useToast();
   const [editingRate, setEditingRate] = useState(null);
   const [formData, setFormData] = useState({
     avg_monthly_rate: 0,
@@ -18,7 +19,6 @@ export default function AdminDeposito() {
     nisbah_bmt: 0,
     monthly_rates: {},
   });
-  const [feedbackMsg, setFeedbackMsg] = useState('');
 
   const openEditModal = (item) => {
     setEditingRate(item);
@@ -51,9 +51,11 @@ export default function AdminDeposito() {
       monthly_rates: formData.monthly_rates,
     });
 
-    setFeedbackMsg(`Data simpanan berjangka ${editingRate.tenor_months} bulan berhasil disimpan!`);
+    showToast(
+      `Data simpanan berjangka ${editingRate.tenor_months} bulan berhasil disimpan!`,
+      'success'
+    );
     setEditingRate(null);
-    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   return (
@@ -66,13 +68,6 @@ export default function AdminDeposito() {
           Atur data historis rate bagi hasil per bulan dan nisbah bagi hasil yang tampil pada tabel serta kalkulator deposito.
         </p>
       </div>
-
-      {feedbackMsg && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{feedbackMsg}</span>
-        </div>
-      )}
 
       {/* Tenor Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -156,116 +151,102 @@ export default function AdminDeposito() {
       </div>
 
       {/* Edit Modal */}
-      {editingRate && (
-        <div className="fixed inset-0 bg-stone-950/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200 my-8 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-              <div>
-                <h3 className="text-lg font-extrabold text-stone-900">
-                  Edit Equivalent Rate: Tenor {editingRate.tenor_months} Bulan
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Perbarui rata-rata bagi hasil bulanan dan rincian data per bulan Jan–Des.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingRate(null)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      <AdminModal
+        isOpen={Boolean(editingRate)}
+        onClose={() => setEditingRate(null)}
+        title={editingRate ? `Edit Equivalent Rate: Tenor ${editingRate.tenor_months} Bulan` : ''}
+        subtitle="Perbarui rata-rata bagi hasil bulanan dan rincian data per bulan Jan–Des."
+        maxWidthClass="max-w-2xl"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setEditingRate(null)}
+              className="px-4 py-2.5 rounded-xl text-xs text-stone-600 font-bold hover:bg-stone-100"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form="deposito-edit-form"
+              className="px-5 py-2.5 rounded-xl text-xs bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
+            >
+              Simpan Perubahan
+            </button>
+          </>
+        }
+      >
+        <form id="deposito-edit-form" onSubmit={handleSubmit} className="space-y-5 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Rata-rata Rate (% / Bulan)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                value={formData.avg_monthly_rate}
+                onChange={(e) =>
+                  setFormData({ ...formData, avg_monthly_rate: e.target.value })
+                }
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+              />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Rata-rata Rate (% / Bulan)
-                  </label>
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Nisbah Anggota (%)
+              </label>
+              <input
+                type="number"
+                required
+                value={formData.nisbah_anggota}
+                onChange={(e) =>
+                  setFormData({ ...formData, nisbah_anggota: e.target.value })
+                }
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Nisbah BMT (%)
+              </label>
+              <input
+                type="number"
+                required
+                value={formData.nisbah_bmt}
+                onChange={(e) =>
+                  setFormData({ ...formData, nisbah_bmt: e.target.value })
+                }
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* 12 Months Input Grid */}
+          <div className="space-y-2 pt-2">
+            <label className="font-bold text-stone-700 uppercase block">
+              Rincian Rate Bulanan (Januari – Desember):
+            </label>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+              {MONTH_KEYS.map((m) => (
+                <div key={m} className="space-y-1">
+                  <span className="font-bold text-stone-500 text-[11px] block">{m}</span>
                   <input
                     type="number"
                     step="0.01"
-                    required
-                    value={formData.avg_monthly_rate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, avg_monthly_rate: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+                    value={formData.monthly_rates?.[m] ?? ''}
+                    onChange={(e) => handleMonthRateChange(m, e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 font-semibold text-center text-xs focus:border-emerald-800 focus:outline-none"
                   />
                 </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Nisbah Anggota (%)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.nisbah_anggota}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nisbah_anggota: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Nisbah BMT (%)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.nisbah_bmt}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nisbah_bmt: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* 12 Months Input Grid */}
-              <div className="space-y-2 pt-2">
-                <label className="font-bold text-stone-700 uppercase block">
-                  Rincian Rate Bulanan (Januari – Desember):
-                </label>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-                  {MONTH_KEYS.map((m) => (
-                    <div key={m} className="space-y-1">
-                      <span className="font-bold text-stone-500 text-[11px] block">{m}</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.monthly_rates?.[m] ?? ''}
-                        onChange={(e) => handleMonthRateChange(m, e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 font-semibold text-center text-xs focus:border-emerald-800 focus:outline-none"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-stone-200 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setEditingRate(null)}
-                  className="px-4 py-2.5 rounded-xl text-stone-600 font-bold hover:bg-stone-100"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
-                >
-                  Simpan Perubahan
-                </button>
-              </div>
-            </form>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        </form>
+      </AdminModal>
     </div>
   );
 }

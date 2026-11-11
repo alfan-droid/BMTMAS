@@ -4,21 +4,21 @@ import {
   Plus,
   Pencil,
   Trash2,
-  CheckCircle2,
   ShieldCheck,
   BadgePercent,
-  X,
   AlertTriangle,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
+import AdminModal from '../../components/admin/AdminModal';
 
 export default function AdminProduk() {
   const { products, addProduct, updateProduct, deleteProduct } = useBmt();
+  const { showToast } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [feedbackMsg, setFeedbackMsg] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -87,21 +87,19 @@ export default function AdminProduk() {
 
     if (editingProduct) {
       await updateProduct(editingProduct.id, productPayload);
-      setFeedbackMsg(`Produk ${productPayload.code} berhasil diperbarui!`);
+      showToast(`Produk ${productPayload.code} berhasil diperbarui!`, 'success');
     } else {
       await addProduct(productPayload);
-      setFeedbackMsg(`Produk ${productPayload.code} berhasil ditambahkan!`);
+      showToast(`Produk ${productPayload.code} berhasil ditambahkan!`, 'success');
     }
 
     setModalOpen(false);
-    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   const handleDelete = async (id) => {
     await deleteProduct(id);
     setDeleteConfirmId(null);
-    setFeedbackMsg('Produk berhasil dihapus!');
-    setTimeout(() => setFeedbackMsg(''), 3000);
+    showToast('Produk berhasil dihapus!', 'success');
   };
 
   return (
@@ -126,13 +124,6 @@ export default function AdminProduk() {
           <span>Tambah Produk Baru</span>
         </button>
       </div>
-
-      {feedbackMsg && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{feedbackMsg}</span>
-        </div>
-      )}
 
       {/* Table Card */}
       <div className="rounded-3xl bg-white border border-stone-200 shadow-sm overflow-hidden">
@@ -230,173 +221,163 @@ export default function AdminProduk() {
       </div>
 
       {/* Add / Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-stone-950/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200 my-8 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-              <h3 className="text-lg font-extrabold text-stone-900">
-                {editingProduct ? 'Edit Produk Simpanan' : 'Tambah Produk Simpanan Baru'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingProduct ? 'Edit Produk Simpanan' : 'Tambah Produk Simpanan Baru'}
+        maxWidthClass="max-w-xl"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2.5 rounded-xl text-xs text-stone-600 font-bold hover:bg-stone-100"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form="produk-form"
+              className="px-5 py-2.5 rounded-xl text-xs bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
+            >
+              Simpan Produk
+            </button>
+          </>
+        }
+      >
+        <form id="produk-form" onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Kode Produk (Singkatan)
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Contoh: TAMARA"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
+              />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Kode Produk (Singkatan)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: TAMARA"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Akad Syariah
-                  </label>
-                  <select
-                    value={formData.akad}
-                    onChange={(e) => setFormData({ ...formData, akad: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none bg-white"
-                  >
-                    <option value="Wadi'ah">Wadi&apos;ah (Titipan)</option>
-                    <option value="Mudharabah">Mudharabah (Bagi Hasil)</option>
-                    <option value="Mudharabah Muthlaqah">Mudharabah Muthlaqah</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Nama Lengkap Produk
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Tabungan Mitra Amanah Sejahtera"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-semibold focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Nisbah Bagi Hasil (Jika Ada)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: 25 : 75 (atau kosongkan jika Wadi'ah)"
-                    value={formData.nisbah}
-                    onChange={(e) => setFormData({ ...formData, nisbah: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Badge Ringkas / Kategori
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: Bebas Potongan Admin"
-                    value={formData.badge_text}
-                    onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Deskripsi Produk
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Jelaskan tujuan dan keunggulan produk simpanan ini..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700 uppercase">
-                  Poin Manfaat / Keunggulan (1 Baris = 1 Poin)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Bebas biaya administrasi bulanan&#10;Dapat ditarik sewaktu-waktu&#10;Layanan jemput bola"
-                  value={formData.benefitsText}
-                  onChange={(e) => setFormData({ ...formData, benefitsText: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 items-center pt-1">
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase">
-                    Pilihan Ikon
-                  </label>
-                  <select
-                    value={formData.icon_name}
-                    onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-semibold focus:border-emerald-800 focus:outline-none bg-white"
-                  >
-                    <option value="Wallet">Wallet (Dompet)</option>
-                    <option value="GraduationCap">GraduationCap (Pendidikan)</option>
-                    <option value="Sparkles">Sparkles (Lebaran/Berkah)</option>
-                    <option value="HeartHandshake">HeartHandshake (Qurban/Kemitraan)</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 pt-4">
-                  <input
-                    type="checkbox"
-                    id="is_active_input"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700 border-stone-300"
-                  />
-                  <label htmlFor="is_active_input" className="font-bold text-stone-800">
-                    Tampilkan Aktif di Web
-                  </label>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-stone-200 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-stone-600 font-bold hover:bg-stone-100"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold shadow-sm"
-                >
-                  Simpan Produk
-                </button>
-              </div>
-            </form>
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Akad Syariah
+              </label>
+              <select
+                value={formData.akad}
+                onChange={(e) => setFormData({ ...formData, akad: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold focus:border-emerald-800 focus:outline-none bg-white"
+              >
+                <option value="Wadi'ah">Wadi&apos;ah (Titipan)</option>
+                <option value="Mudharabah">Mudharabah (Bagi Hasil)</option>
+                <option value="Mudharabah Muthlaqah">Mudharabah Muthlaqah</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Nama Lengkap Produk
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Contoh: Tabungan Mitra Amanah Sejahtera"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-semibold focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Nisbah Bagi Hasil (Jika Ada)
+              </label>
+              <input
+                type="text"
+                placeholder="Contoh: 25 : 75 (atau kosongkan jika Wadi'ah)"
+                value={formData.nisbah}
+                onChange={(e) => setFormData({ ...formData, nisbah: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Badge Ringkas / Kategori
+              </label>
+              <input
+                type="text"
+                placeholder="Contoh: Bebas Potongan Admin"
+                value={formData.badge_text}
+                onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Deskripsi Produk
+            </label>
+            <textarea
+              rows={2}
+              required
+              placeholder="Jelaskan tujuan dan keunggulan produk simpanan ini..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-bold text-stone-700 uppercase">
+              Poin Manfaat / Keunggulan (1 Baris = 1 Poin)
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Bebas biaya administrasi bulanan&#10;Dapat ditarik sewaktu-waktu&#10;Layanan jemput bola"
+              value={formData.benefitsText}
+              onChange={(e) => setFormData({ ...formData, benefitsText: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 items-center pt-1">
+            <div className="space-y-1">
+              <label className="font-bold text-stone-700 uppercase">
+                Pilihan Ikon
+              </label>
+              <select
+                value={formData.icon_name}
+                onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-semibold focus:border-emerald-800 focus:outline-none bg-white"
+              >
+                <option value="Wallet">Wallet (Dompet)</option>
+                <option value="GraduationCap">GraduationCap (Pendidikan)</option>
+                <option value="Sparkles">Sparkles (Lebaran/Berkah)</option>
+                <option value="HeartHandshake">HeartHandshake (Qurban/Kemitraan)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-4">
+              <input
+                type="checkbox"
+                id="is_active_input"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                className="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700 border-stone-300"
+              />
+              <label htmlFor="is_active_input" className="font-bold text-stone-800">
+                Tampilkan Aktif di Web
+              </label>
+            </div>
+          </div>
+        </form>
+      </AdminModal>
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (

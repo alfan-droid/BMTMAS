@@ -3,33 +3,36 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, ShieldCheck, Lock, ArrowLeft, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBmt } from '../../context/BmtContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminLogin() {
   const { login } = useAuth();
   const { institutionInfo } = useBmt();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!email.trim() || !password.trim()) {
-      setError('Email dan password wajib diisi.');
+      showToast('Email dan password wajib diisi.', 'error', { title: 'Data Belum Lengkap' });
       return;
     }
 
     setIsSubmitting(true);
     try {
       await login(email, password);
+      showToast('Berhasil masuk ke Portal CMS BMT MAS.', 'success', { title: 'Login Berhasil' });
       navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Gagal masuk. Periksa kembali email dan password.');
+      showToast(err.message || 'Gagal masuk. Periksa kembali email dan password.', 'error', {
+        title: 'Gagal Masuk',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -38,7 +41,9 @@ export default function AdminLogin() {
   const handleUseDemo = () => {
     setEmail('admin@bmtmas.id');
     setPassword('admin123');
-    setError('');
+    showToast('Akun demo admin telah diisi. Klik "Masuk ke Dashboard".', 'info', {
+      title: 'Akun Demo Siap',
+    });
   };
 
   return (
@@ -63,12 +68,6 @@ export default function AdminLogin() {
 
         {/* Login Form */}
         <div className="p-7 space-y-5">
-          {error && (
-            <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label
