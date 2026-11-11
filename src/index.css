@@ -3,19 +3,88 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --m-in: 160ms;
+    --m-out: 120ms;
+  }
+
   html {
     scroll-behavior: smooth;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    background-color: #FDFBF7;
-    @apply text-stone-900 antialiased;
+    background-color: #FFFFFF;
+    color: #0F172A;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #00A39D;
+    color: #FFFFFF;
   }
 }
 
 @layer utilities {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Equal edges standardized container */
+  .wrap {
+    width: 100%;
+    max-width: 80rem; /* 1280px */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .wrap {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .wrap {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+
+  /* Quiet micro-interactions */
+  .quiet-card {
+    transition: transform var(--m-in) var(--ease), box-shadow var(--m-in) var(--ease), border-color var(--m-in) var(--ease);
+  }
+
+  .quiet-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .quiet-btn {
+    transition: transform var(--m-in) var(--ease), background-color var(--m-in) var(--ease), box-shadow var(--m-in) var(--ease), border-color var(--m-in) var(--ease);
+  }
+
+  .quiet-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .quiet-btn:active {
+    transform: translateY(1px) scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

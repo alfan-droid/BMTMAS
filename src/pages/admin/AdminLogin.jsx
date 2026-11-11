@@ -42,21 +42,21 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDFBF7] to-amber-100/50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-layered border-2 border-amber-200/90 overflow-hidden">
+    <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
         {/* Header Plaque */}
-        <div className="bg-emerald-950 p-7 text-center text-white border-b border-emerald-800 relative">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-900 border-2 border-amber-400 flex items-center justify-center font-extrabold text-amber-300 text-base shadow-md mx-auto mb-3">
+        <div className="bg-slate-900 p-7 text-center text-white border-b border-slate-800 relative">
+          <div className="w-12 h-12 rounded-xl bg-emerald-900 border border-emerald-700 flex items-center justify-center font-extrabold text-emerald-300 text-sm shadow-md mx-auto mb-3">
             MAS
           </div>
-          <h2 className="text-xl font-extrabold tracking-tight">
+          <h2 className="text-xl font-bold tracking-tight text-white">
             Portal CMS BMT MAS
           </h2>
-          <p className="text-xs text-amber-300 font-semibold mt-1">
+          <p className="text-xs text-slate-400 font-medium mt-1">
             {institutionInfo.fullName || 'KSPP Syariah BMT MAS'}
           </p>
-          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-900 border border-emerald-700 text-[11px] text-emerald-200">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] text-emerald-400">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Badan Hukum: {institutionInfo.legalNumber}</span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function AdminLogin() {
         {/* Login Form */}
         <div className="p-7 space-y-5">
           {error && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
               {error}
             </div>
           )}
@@ -73,7 +73,7 @@ export default function AdminLogin() {
             <div className="space-y-1.5">
               <label
                 htmlFor="email-input"
-                className="text-xs font-extrabold uppercase tracking-wider text-stone-700"
+                className="text-xs font-bold uppercase tracking-wider text-slate-700"
               >
                 Email Administrator
               </label>
@@ -84,14 +84,14 @@ export default function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@bmtmas.id"
                 required
-                className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-300 text-sm font-medium focus:bg-white focus:border-emerald-800 focus:outline-none transition-colors"
+                className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-sm font-medium focus:bg-white focus:border-emerald-800 focus:outline-none transition-colors"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="password-input"
-                className="text-xs font-extrabold uppercase tracking-wider text-stone-700"
+                className="text-xs font-bold uppercase tracking-wider text-slate-700"
               >
                 Kata Sandi (Password)
               </label>
@@ -103,12 +103,12 @@ export default function AdminLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full px-4 py-3 pr-11 rounded-xl bg-stone-50 border border-stone-300 text-sm font-medium focus:bg-white focus:border-emerald-800 focus:outline-none transition-colors"
+                  className="w-full px-4 py-2.5 pr-11 rounded-lg bg-slate-50 border border-slate-300 text-sm font-medium focus:bg-white focus:border-emerald-800 focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-700"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -118,27 +118,27 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-white font-extrabold text-sm shadow-md transition-all duration-200 disabled:opacity-60"
+              className="quiet-btn w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-emerald-900 hover:bg-emerald-950 text-white font-bold text-sm shadow-sm transition-all duration-200 disabled:opacity-60"
             >
-              <Lock className="w-4 h-4 text-amber-400" />
+              <Lock className="w-4 h-4 text-emerald-400" />
               <span>{isSubmitting ? 'Memproses Masuk...' : 'Masuk ke Dashboard'}</span>
             </button>
           </form>
 
           {/* Quick Demo Helper */}
-          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/90 text-center space-y-2">
-            <span className="text-[11px] font-bold text-stone-600 block">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
+            <span className="text-[11px] font-semibold text-slate-600 block">
               Pengujian Lokal / Demo CMS?
             </span>
             <button
               type="button"
               onClick={handleUseDemo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Gunakan Akun Demo Admin</span>
             </button>
-            <p className="text-[10px] text-stone-500">
+            <p className="text-[10px] text-slate-500">
               Email: <code>admin@bmtmas.id</code> • Pass: <code>admin123</code>
             </p>
           </div>
@@ -146,7 +146,7 @@ export default function AdminLogin() {
           <div className="text-center pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-emerald-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-900 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Kembali ke Halaman Utama</span>

@@ -42,25 +42,25 @@ export default function AdminHeader({ setMobileOpen }) {
         <Link
           to="/"
           target="_blank"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-stone-800 text-xs font-bold transition-colors"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold transition-colors"
         >
-          <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
+          <ExternalLink className="w-3.5 h-3.5 text-emerald-700" />
           <span>Lihat Website</span>
         </Link>
 
-        <div className="h-6 w-px bg-stone-200 hidden sm:block" />
+        <div className="h-6 w-px bg-slate-200 hidden sm:block" />
 
         <div className="flex items-center gap-2.5">
           <div className="text-right hidden md:block">
-            <span className="text-xs font-bold text-stone-900 block">
+            <span className="text-xs font-bold text-slate-900 block">
               {user?.user_metadata?.name || 'Administrator'}
             </span>
-            <span className="text-[10px] text-emerald-800 font-bold block">
+            <span className="text-[10px] text-emerald-700 font-bold block">
               Super Admin
             </span>
           </div>
 
-          <div className="w-9 h-9 rounded-xl bg-emerald-900 text-amber-300 font-bold text-xs flex items-center justify-center border border-amber-400">
+          <div className="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-700">
             A
           </div>
 
@@ -68,7 +68,7 @@ export default function AdminHeader({ setMobileOpen }) {
             type="button"
             onClick={logout}
             title="Keluar"
-            className="p-2 rounded-xl text-stone-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogOut className="w-4 h-4" />
           </button>
