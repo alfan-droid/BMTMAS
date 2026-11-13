@@ -59,55 +59,16 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Visual Frame & Highlight Metrics Card */}
+          {/* RIGHT COLUMN: Visual Frame */}
           <div className="lg:col-span-5">
             <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 shadow-2xl">
-              <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-900">
+              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-900 shadow-inner">
                 <img
                   src={heroPhotoUrl}
                   alt="Pelayanan Anggota KSPP Syariah BMT MAS Gunungkidul"
                   className="w-full h-full object-cover"
                   loading="eager"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#003533]/80 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3.5 right-3.5 flex items-end justify-between text-white">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#00A39D] text-white">
-                      {institutionInfo.heroBadge || 'Pelayanan Prima'}
-                    </span>
-                    <p className="text-xs font-semibold text-white/95 mt-1">
-                      {institutionInfo.fullName} — {institutionInfo.region || 'Gunungkidul'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3 Key Metrics Bar inside Hero Card */}
-              <div className="mt-3.5 grid grid-cols-3 divide-x divide-white/15 bg-[#003533]/90 rounded-xl p-3.5 text-center">
-                <div className="px-2">
-                  <div className="text-lg sm:text-xl font-extrabold text-[#F59E0B] tabular-nums">
-                    Rp 0
-                  </div>
-                  <div className="text-[11px] text-white/80 mt-0.5">
-                    Biaya Admin
-                  </div>
-                </div>
-                <div className="px-2">
-                  <div className="text-lg sm:text-xl font-extrabold text-white tabular-nums">
-                    50 : 50
-                  </div>
-                  <div className="text-[11px] text-white/80 mt-0.5">
-                    Nisbah 12 Bln
-                  </div>
-                </div>
-                <div className="px-2">
-                  <div className="text-lg sm:text-xl font-extrabold text-white tabular-nums">
-                    2 Kantor
-                  </div>
-                  <div className="text-[11px] text-white/80 mt-0.5">
-                    Semanu &amp; Paliyan
-                  </div>
-                </div>
               </div>
             </div>
           </div>

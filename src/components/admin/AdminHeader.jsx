@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, ExternalLink, LogOut } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const TITLE_MAP = {
@@ -39,17 +39,6 @@ export default function AdminHeader({ setMobileOpen }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <Link
-          to="/"
-          target="_blank"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold transition-colors"
-        >
-          <ExternalLink className="w-3.5 h-3.5 text-emerald-700" />
-          <span>Lihat Website</span>
-        </Link>
-
-        <div className="h-6 w-px bg-slate-200 hidden sm:block" />
-
         <div className="flex items-center gap-2.5">
           <div className="text-right hidden md:block">
             <span className="text-xs font-bold text-slate-900 block">

@@ -57,19 +57,6 @@ export default function AboutSection() {
                 </p>
               </div>
 
-              {/* Nomor Badan Hukum Box */}
-              <div className="p-4 rounded-xl bg-white/10 border border-white/15 space-y-1">
-                <span className="text-[10px] text-white/70 uppercase font-bold tracking-wider block">
-                  Nomor Badan Hukum Koperasi
-                </span>
-                <div className="text-base font-extrabold text-[#F59E0B] tabular-nums">
-                  {institutionInfo.legalNumber}
-                </div>
-                <p className="text-white/80 text-[11px]">
-                  Koperasi Simpan Pinjam dan Pembiayaan Syariah (KSPPS)
-                </p>
-              </div>
-
               {/* Quran Verse Foundation */}
               {institutionInfo.quranVerse && (
                 <div className="p-4 rounded-xl bg-[#002927]/70 border border-white/10 space-y-2">

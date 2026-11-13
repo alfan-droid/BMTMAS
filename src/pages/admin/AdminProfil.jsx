@@ -1,47 +1,10 @@
 import React, { useState, useRef } from 'react';
-import {
-  Building2,
-  ShieldCheck,
-  Image as ImageIcon,
-  Upload,
-  RefreshCw,
-  Sparkles,
-  MapPin,
-  Tag,
-  Save,
-} from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
 import { useToast } from '../../context/ToastContext';
 
 const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=1000&q=80';
-
-const PRESET_IMAGES = [
-  {
-    id: 'p1',
-    label: 'Kantor Pelayanan Resmi (Default Brosur)',
-    url: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=1000&q=80',
-    thumb: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 'p2',
-    label: 'Konsultasi Simpanan Syariah',
-    url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=80',
-    thumb: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 'p3',
-    label: 'Kemitraan Usaha Anggota',
-    url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1000&q=80',
-    thumb: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 'p4',
-    label: 'Gedung Koperasi Modern',
-    url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80',
-    thumb: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=300&q=80',
-  },
-];
 
 export default function AdminProfil() {
   const { institutionInfo, branches, updateInstitutionInfo, updateBranch } = useBmt();
@@ -173,18 +136,13 @@ export default function AdminProfil() {
         {/* 1. BAGIAN KHUSUS: EDIT FOTO TAMPILAN PADA BAR AWAL BERANDA */}
         <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-stone-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
-                <ImageIcon className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-extrabold text-stone-900">
-                  Edit Foto Tampilan Bar Awal Beranda
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Ubah gambar aktivitas pelayanan koperasi yang tampil di bingkai kanan bagian Beranda (Hero).
-                </p>
-              </div>
+            <div>
+              <h3 className="text-base font-extrabold text-stone-900">
+                Edit Foto Tampilan Bar Awal Beranda
+              </h3>
+              <p className="text-xs text-stone-500">
+                Ubah gambar aktivitas pelayanan koperasi yang tampil di bingkai kanan bagian Beranda (Hero).
+              </p>
             </div>
 
             <button
@@ -197,190 +155,72 @@ export default function AdminProfil() {
             </button>
           </div>
 
-          <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Sisi Kiri: Kontrol Input & Upload Foto */}
-            <div className="lg:col-span-7 space-y-5 text-xs">
-              {/* Opsi Upload File Gambar */}
-              <div className="p-4 rounded-2xl bg-stone-50 border border-dashed border-stone-300 hover:border-emerald-700 transition-colors">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="image/png, image/jpeg, image/jpg, image/webp"
-                  className="hidden"
-                />
-                <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-emerald-900 shrink-0 shadow-xs">
-                    <Upload className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1 flex-1">
-                    <span className="font-bold text-stone-900 block text-xs">
-                      Unggah File Gambar dari Komputer / HP
-                    </span>
-                    <p className="text-[11px] text-stone-500 leading-normal">
-                      Mendukung format JPG, PNG, atau WEBP. Foto otomatis dikonversi dan disimpan.
-                    </p>
-                  </div>
+          <div className="max-w-2xl space-y-5 text-xs">
+            {/* Opsi Upload File Gambar */}
+            <div className="p-4 rounded-2xl bg-stone-50 border border-dashed border-stone-300 hover:border-emerald-700 transition-colors">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                className="hidden"
+              />
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                <div className="space-y-1 flex-1">
+                  <span className="font-bold text-stone-900 block text-xs">
+                    Unggah File Gambar dari Komputer / HP
+                  </span>
+                  <p className="text-[11px] text-stone-500 leading-normal">
+                    Mendukung format JPG, PNG, atau WEBP. Foto otomatis dikonversi dan disimpan.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs transition-colors shrink-0 shadow-xs"
+                >
+                  Pilih File Foto
+                </button>
+              </div>
+            </div>
+
+            {/* Opsi Input Link URL Gambar Langsung */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-stone-700 uppercase text-[11px] flex items-center justify-between">
+                <span>Atau Masukkan URL Gambar Langsung</span>
+                {photoForm.heroImage && (
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs transition-colors shrink-0 shadow-xs"
+                    onClick={() => updatePhotoField('heroImage', '')}
+                    className="text-[11px] text-red-600 hover:underline normal-case font-semibold"
                   >
-                    Pilih File Foto
+                    Kosongkan URL
                   </button>
-                </div>
-              </div>
-
-              {/* Opsi Input Link URL Gambar Langsung */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-stone-700 uppercase text-[11px]">
-                  Atau Masukkan URL Gambar Langsung
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={photoForm.heroImage}
-                  onChange={(e) => updatePhotoField('heroImage', e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium text-xs focus:border-emerald-800 focus:outline-none bg-white"
-                />
-                <span className="text-[10px] text-stone-500 block">
-                  Contoh: URL gambar dari Unsplash, hosting foto internal, atau cloud storage.
-                </span>
-              </div>
-
-              {/* Pilihan Template Foto Cepat (Presets) */}
-              <div className="space-y-2 pt-1">
-                <label className="font-bold text-stone-700 uppercase text-[11px] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Pilihan Foto Cepat (Rekomendasi BMT MAS)</span>
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {PRESET_IMAGES.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => updatePhotoField('heroImage', preset.url)}
-                      className={`group p-1.5 rounded-xl border text-left transition-all overflow-hidden ${
-                        photoForm.heroImage === preset.url
-                          ? 'border-emerald-800 ring-2 ring-emerald-800/20 bg-emerald-50/50'
-                          : 'border-stone-200 bg-white hover:border-stone-400'
-                      }`}
-                    >
-                      <div className="aspect-[4/3] rounded-lg overflow-hidden bg-stone-100">
-                        <img
-                          src={preset.thumb}
-                          alt={preset.label}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-stone-800 line-clamp-1 mt-1 block">
-                        {preset.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Keterangan Teks Label & Lokasi pada Bingkai Foto */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase text-[11px] flex items-center gap-1">
-                    <Tag className="w-3.5 h-3.5 text-stone-500" />
-                    <span>Label Badge Kartu Foto</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={photoForm.heroBadge}
-                    onChange={(e) => updatePhotoField('heroBadge', e.target.value)}
-                    placeholder="Kantor Pelayanan"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-bold text-xs focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-stone-700 uppercase text-[11px] flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-stone-500" />
-                    <span>Wilayah / Keterangan Lokasi</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={photoForm.region}
-                    onChange={(e) => updatePhotoField('region', e.target.value)}
-                    placeholder="Gunungkidul, D.I. Yogyakarta"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium text-xs focus:border-emerald-800 focus:outline-none"
-                  />
-                </div>
-              </div>
+                )}
+              </label>
+              <input
+                type="url"
+                placeholder="https://images.unsplash.com/..."
+                value={photoForm.heroImage}
+                onChange={(e) => updatePhotoField('heroImage', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 font-medium text-xs focus:border-emerald-800 focus:outline-none bg-white"
+              />
+              <span className="text-[10px] text-stone-500 block">
+                Contoh: URL gambar dari Unsplash, hosting foto internal, atau cloud storage.
+              </span>
             </div>
-
-            {/* Sisi Kanan: Pratinjau Langsung (Live Preview) Sesuai Desain Hero */}
-            <div className="lg:col-span-5 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-extrabold text-stone-800 uppercase tracking-wider text-[11px]">
-                  Pratinjau Tampilan Beranda (Live)
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 font-bold">
-                  Sesuai Halaman Publik
-                </span>
-              </div>
-
-              {/* Bingkai Foto Mengikuti Struktur Hero.jsx */}
-              <div className="bg-stone-50 p-3 rounded-2xl border border-stone-300 shadow-sm">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-stone-200">
-                  <img
-                    src={photoForm.heroImage || DEFAULT_HERO_IMAGE}
-                    alt="Aktivitas Pelayanan BMT MAS"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = DEFAULT_HERO_IMAGE;
-                    }}
-                  />
-                </div>
-
-                <div className="p-3 text-center border-t border-stone-200 mt-2 flex items-center justify-between bg-white rounded-xl">
-                  <div className="flex items-center gap-2.5 text-left">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-950 text-amber-400 font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                      MAS
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-stone-900 leading-tight">
-                        {infoForm.fullName || institutionInfo.fullName || 'KSPP SYARIAH BMT MAS'}
-                      </h4>
-                      <p className="text-[10px] text-stone-500">
-                        {photoForm.region || 'Gunungkidul, D.I. Yogyakarta'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-100 text-stone-700">
-                    {photoForm.heroBadge || 'Kantor Pelayanan'}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-stone-500 leading-relaxed text-center sm:text-left pt-1">
-                Foto di atas akan langsung tampil pada bar kanan di awal halaman Beranda bagi pengunjung.
-              </p>
-            </div>
-          </div>
           </div>
         </div>
 
         {/* 2. Legalitas & Identitas Lembaga */}
         <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
-            <div className="w-10 h-10 rounded-xl bg-emerald-900 text-amber-300 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-extrabold text-stone-900">
-                Identitas Resmi Lembaga Koperasi
-              </h3>
-              <p className="text-xs text-stone-500">
-                Data yang tampil pada header pita resmi, footer, dan kartu profil.
-              </p>
-            </div>
+          <div className="pb-4 border-b border-stone-200">
+            <h3 className="text-base font-extrabold text-stone-900">
+              Identitas Resmi Lembaga Koperasi
+            </h3>
+            <p className="text-xs text-stone-500">
+              Data yang tampil pada header pita resmi, footer, dan kartu profil.
+            </p>
           </div>
 
           <div className="space-y-4 text-xs">
@@ -400,7 +240,7 @@ export default function AdminProfil() {
 
               <div className="space-y-1">
                 <label className="font-bold text-stone-700 uppercase">
-                  Nomor Badan Hukum Koperasi
+                  Nomor Izin &amp; Badan Hukum Resmi
                 </label>
                 <input
                   type="text"
@@ -474,18 +314,13 @@ export default function AdminProfil() {
 
         {/* 3. Informasi Kantor Cabang Semanu & Paliyan */}
         <div className="rounded-3xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-stone-200">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-extrabold text-stone-900">
-                Pengaturan Alamat &amp; Kontak Kantor Cabang
-              </h3>
-              <p className="text-xs text-stone-500">
-                Kantor Pusat Semanu dan Kantor Cabang Pelayanan Paliyan.
-              </p>
-            </div>
+          <div className="pb-4 border-b border-stone-200">
+            <h3 className="text-base font-extrabold text-stone-900">
+              Pengaturan Alamat &amp; Kontak Kantor Cabang
+            </h3>
+            <p className="text-xs text-stone-500">
+              Kantor Pusat Semanu dan Kantor Cabang Pelayanan Paliyan.
+            </p>
           </div>
 
           <div className="space-y-6 text-xs">
@@ -570,10 +405,9 @@ export default function AdminProfil() {
         <button
           type="submit"
           form="admin-profil-form"
-          className="quiet-btn inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-emerald-950 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm shadow-2xl border-2 border-amber-400/80 transition-all"
+          className="quiet-btn inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-emerald-950 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm shadow-2xl border-2 border-amber-400/80 transition-all tracking-wider"
         >
-          <Save className="w-4 h-4 text-amber-300" />
-          <span>Simpan Perubahan</span>
+          <span>SIMPAN</span>
         </button>
       </div>
     </div>

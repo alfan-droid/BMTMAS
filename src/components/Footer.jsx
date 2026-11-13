@@ -53,8 +53,12 @@ export default function Footer() {
           {/* Col 1: Brand & Legal */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#00A39D] text-white font-extrabold text-sm flex items-center justify-center shrink-0">
-                MAS
+              <div className="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm">
+                <img
+                  src="/images/logo-bmt-mas.png"
+                  alt="Logo BMT MAS"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <h4 className="text-base font-extrabold text-white leading-tight">
@@ -71,7 +75,7 @@ export default function Footer() {
             </p>
 
             <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[11px] text-[#FEF3C7]">
-              <span>Badan Hukum: <strong className="text-white">{institutionInfo.legalNumber}</strong></span>
+              <span>Izin &amp; Badan Hukum Resmi: <strong className="text-white font-mono ml-1">{institutionInfo.legalNumber}</strong></span>
             </div>
           </div>
 
@@ -170,7 +174,7 @@ export default function Footer() {
       <div className="border-t border-white/10 py-5 bg-[#002624]">
         <div className="wrap flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/60">
           <div>
-            &copy; {new Date().getFullYear()} {institutionInfo.fullName}. Gunungkidul, D.I. Yogyakarta.
+            &copy; {new Date().getFullYear()} {institutionInfo.fullName} • Badan Hukum No. {institutionInfo.legalNumber} • Gunungkidul, D.I. Yogyakarta
           </div>
           <div className="italic text-[#F59E0B]/90 font-serif text-xs">
             &ldquo;{institutionInfo.tagline}&rdquo;

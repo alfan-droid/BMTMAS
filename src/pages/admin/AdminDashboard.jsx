@@ -6,16 +6,10 @@ import {
   MessageSquareQuote,
   Building2,
   ExternalLink,
-  ShieldCheck,
   RefreshCw,
   AlertTriangle,
   Database,
   ArrowRight,
-  Activity,
-  Layers,
-  Sparkles,
-  Server,
-  FileText,
 } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
 import { useToast } from '../../context/ToastContext';
@@ -55,10 +49,6 @@ export default function AdminDashboard() {
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-semibold backdrop-blur-xs">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span>Badan Hukum Resmi: {institutionInfo.legalNumber}</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
               Pusat Manajemen Konten &amp; Operasional {institutionInfo.shortName || 'BMT MAS'}
             </h1>
@@ -89,13 +79,10 @@ export default function AdminDashboard() {
             to="/admin/produk"
             className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition-all hover:-translate-y-0.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
+            <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Produk Simpanan
               </span>
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center transition-colors">
-                <Wallet className="w-5 h-5" />
-              </div>
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
@@ -116,13 +103,10 @@ export default function AdminDashboard() {
             to="/admin/deposito"
             className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 shadow-xs hover:shadow-md transition-all hover:-translate-y-0.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
+            <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Tenor Deposito
               </span>
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-slate-950 flex items-center justify-center transition-colors">
-                <TrendingUp className="w-5 h-5" />
-              </div>
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
@@ -143,13 +127,10 @@ export default function AdminDashboard() {
             to="/admin/testimoni"
             className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition-all hover:-translate-y-0.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
+            <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Ulasan Anggota
               </span>
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-700 group-hover:text-white flex items-center justify-center transition-colors">
-                <MessageSquareQuote className="w-5 h-5" />
-              </div>
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
@@ -170,13 +151,10 @@ export default function AdminDashboard() {
             to="/admin/profil"
             className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all hover:-translate-y-0.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
+            <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Jaringan Cabang
               </span>
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 group-hover:bg-slate-900 group-hover:text-amber-300 flex items-center justify-center transition-colors">
-                <Building2 className="w-5 h-5" />
-              </div>
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
@@ -194,14 +172,10 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* 3. Quick Action Hub (Bento Layout) */}
+      {/* 3. Aksi Cepat Pengelolaan Data (6 Cards) */}
       <section className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-            <Layers className="w-3.5 h-3.5 text-slate-500" />
-            <span>Alur Kerja CMS Mandiri</span>
-          </div>
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
             Aksi Cepat Pengelolaan Data
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">

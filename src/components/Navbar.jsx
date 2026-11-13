@@ -117,29 +117,17 @@ export default function Navbar() {
             {/* Left: Brand Identity */}
             <Link
               to="/"
-              className="flex items-center gap-3.5 group focus:outline-none"
+              className="flex items-center group focus:outline-none"
               onClick={() => {
                 if (isHome) window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              aria-label="Beranda BMT MAS"
             >
-              <div className="relative w-11 h-11 rounded-xl bg-[#004D4A] text-white font-extrabold text-sm flex items-center justify-center shrink-0 tracking-wider shadow-sm group-hover:bg-[#00A39D] transition-colors">
-                <span>MAS</span>
-                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#F59E0B] border-2 border-white" />
-              </div>
-
-              <div className="flex flex-col">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg sm:text-xl font-extrabold tracking-tight text-[#004D4A]">
-                    BMT MAS
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#E6F6F5] text-[#008580]">
-                    Syariah
-                  </span>
-                </div>
-                <span className="text-[11px] text-slate-500 font-medium leading-tight">
-                  Mitra Amanah Sejahtera
-                </span>
-              </div>
+              <img
+                src="/images/logo-bmt-mas.png"
+                alt="Logo BMT MAS"
+                className="h-12 sm:h-14 w-auto object-contain shrink-0 transition-transform group-hover:scale-105"
+              />
             </Link>
 
             {/* Center: Desktop Menu Links */}

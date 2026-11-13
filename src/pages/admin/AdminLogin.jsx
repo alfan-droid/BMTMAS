@@ -51,8 +51,12 @@ export default function AdminLogin() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
         {/* Header Plaque */}
         <div className="bg-slate-900 p-7 text-center text-white border-b border-slate-800 relative">
-          <div className="w-12 h-12 rounded-xl bg-emerald-900 border border-emerald-700 flex items-center justify-center font-extrabold text-emerald-300 text-sm shadow-md mx-auto mb-3">
-            MAS
+          <div className="w-14 h-14 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-md mx-auto mb-3 border border-slate-700">
+            <img
+              src="/images/logo-bmt-mas.png"
+              alt="Logo BMT MAS"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h2 className="text-xl font-bold tracking-tight text-white">
             Portal CMS BMT MAS
