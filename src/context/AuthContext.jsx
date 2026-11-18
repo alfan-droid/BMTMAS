@@ -10,24 +10,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check Supabase session if available
+    // Jika Supabase aktif, gunakan penuh Supabase Auth (tanpa fallback demo lokal)
     if (supabase) {
+      localStorage.removeItem(LOCAL_ADMIN_KEY);
+
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setUser(session.user);
-          setLoading(false);
-          return;
-        }
-        // Check local admin fallback
-        checkLocalSession();
+        setUser(session?.user ?? null);
+        setLoading(false);
       });
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          checkLocalSession();
-        }
+        setUser(session?.user ?? null);
         setLoading(false);
       });
 
@@ -52,24 +45,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    // Try Supabase auth first if active
+    // Jika Supabase terkoneksi, wajib autentikasi via Supabase Auth
     if (supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (!error && data?.session?.user) {
-          setUser(data.session.user);
-          localStorage.removeItem(LOCAL_ADMIN_KEY);
-          return { success: true, user: data.session.user };
-        }
-      } catch (err) {
-        console.warn('Supabase login error, checking local fallback:', err);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error || !data?.session?.user) {
+        throw new Error('Email atau password salah. Silakan coba kembali.');
       }
+      localStorage.removeItem(LOCAL_ADMIN_KEY);
+      setUser(data.session.user);
+      return { success: true, user: data.session.user };
     }
 
-    // Local / Demo admin fallback (admin@bmtmas.id / admin123)
+    // Mode Demo Lokal (hanya aktif selama Supabase belum dihubungkan)
     if (
       (email.trim().toLowerCase() === 'admin@bmtmas.id' || email.trim().toLowerCase() === 'admin') &&
       password === 'admin123'

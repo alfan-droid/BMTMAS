@@ -68,6 +68,8 @@ export default function Hero() {
                   alt="Pelayanan Anggota KSPP Syariah BMT MAS Gunungkidul"
                   className="w-full h-full object-cover"
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </div>
             </div>

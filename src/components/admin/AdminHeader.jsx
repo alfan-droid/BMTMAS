@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +15,17 @@ export default function AdminHeader({ setMobileOpen }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const currentTitle = TITLE_MAP[location.pathname] || 'Panel Administrasi';
+
+  useEffect(() => {
+    document.title = `${currentTitle} — CMS BMT MAS`;
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    if (!robotsMeta) {
+      robotsMeta = document.createElement('meta');
+      robotsMeta.setAttribute('name', 'robots');
+      document.head.appendChild(robotsMeta);
+    }
+    robotsMeta.setAttribute('content', 'noindex, nofollow');
+  }, [currentTitle]);
 
   return (
     <header className="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">

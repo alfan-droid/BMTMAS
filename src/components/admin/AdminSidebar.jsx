@@ -59,6 +59,8 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
                 <img
                   src="/images/logo-bmt-mas.png"
                   alt="Logo BMT MAS"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain"
                 />
               </div>

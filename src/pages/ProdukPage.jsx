@@ -30,7 +30,9 @@ export default function ProdukPage() {
   const { products, institutionInfo } = useBmt();
   const [selectedFilter, setSelectedFilter] = useState('ALL');
 
-  const filteredProducts = products.filter((p) => {
+  const activeProducts = products.filter((p) => p.is_active !== false);
+
+  const filteredProducts = activeProducts.filter((p) => {
     if (selectedFilter === 'ALL') return true;
     return p.akad?.toLowerCase().includes(selectedFilter.toLowerCase());
   });
@@ -82,7 +84,7 @@ export default function ProdukPage() {
 
             <div className="flex flex-wrap items-center gap-1.5">
               {[
-                { id: 'ALL', label: `Semua Produk (${products.length})` },
+                { id: 'ALL', label: `Semua Produk (${activeProducts.length})` },
                 { id: 'Wadi', label: "Akad Wadi'ah (Titipan)" },
                 { id: 'Mudharabah', label: 'Akad Mudharabah (Bagi Hasil)' },
               ].map((tab) => (

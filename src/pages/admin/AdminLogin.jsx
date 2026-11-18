@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, ShieldCheck, Lock, ArrowLeft, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBmt } from '../../context/BmtContext';
 import { useToast } from '../../context/ToastContext';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function AdminLogin() {
   const { login } = useAuth();
@@ -15,6 +16,10 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    document.title = `Login Portal CMS | ${institutionInfo.shortName || 'BMT MAS'}`;
+  }, [institutionInfo.shortName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,6 +60,8 @@ export default function AdminLogin() {
             <img
               src="/images/logo-bmt-mas.png"
               alt="Logo BMT MAS"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain"
             />
           </div>
@@ -128,23 +135,25 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          {/* Quick Demo Helper */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
-            <span className="text-[11px] font-semibold text-slate-600 block">
-              Pengujian Lokal / Demo CMS?
-            </span>
-            <button
-              type="button"
-              onClick={handleUseDemo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Gunakan Akun Demo Admin</span>
-            </button>
-            <p className="text-[10px] text-slate-500">
-              Email: <code>admin@bmtmas.id</code> • Pass: <code>admin123</code>
-            </p>
-          </div>
+          {/* Quick Demo Helper (Hanya tampil saat Supabase belum dikonfigurasi) */}
+          {!supabase && (
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
+              <span className="text-[11px] font-semibold text-slate-600 block">
+                Mode Demo Lokal (Supabase Belum Terhubung)
+              </span>
+              <button
+                type="button"
+                onClick={handleUseDemo}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Gunakan Akun Demo Admin</span>
+              </button>
+              <p className="text-[10px] text-slate-500">
+                Email: <code>admin@bmtmas.id</code> • Pass: <code>admin123</code>
+              </p>
+            </div>
+          )}
 
           <div className="text-center pt-2">
             <Link

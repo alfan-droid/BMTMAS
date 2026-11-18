@@ -2,9 +2,65 @@ import React, { useState, useRef } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useBmt } from '../../context/BmtContext';
 import { useToast } from '../../context/ToastContext';
+import { supabase } from '../../lib/supabaseClient';
 
 const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1556742049-0a67e5572293?auto=format&fit=crop&w=1000&q=80';
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_IMAGE_DIMENSION = 1280;
+const COMPRESSION_QUALITY = 0.8;
+
+function compressImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+
+      if (width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION) {
+        if (width >= height) {
+          height = Math.round((height * MAX_IMAGE_DIMENSION) / width);
+          width = MAX_IMAGE_DIMENSION;
+        } else {
+          width = Math.round((width * MAX_IMAGE_DIMENSION) / height);
+          height = MAX_IMAGE_DIMENSION;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Gagal menginisialisasi kompresi gambar.'));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      let dataUrl = canvas.toDataURL('image/webp', COMPRESSION_QUALITY);
+      if (!dataUrl.startsWith('data:image/webp')) {
+        dataUrl = canvas.toDataURL('image/jpeg', COMPRESSION_QUALITY);
+      }
+
+      canvas.toBlob(
+        (blob) => resolve({ dataUrl, blob }),
+        'image/webp',
+        COMPRESSION_QUALITY
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Gagal memuat file gambar.'));
+    };
+
+    img.src = objectUrl;
+  });
+}
 
 export default function AdminProfil() {
   const { institutionInfo, branches, updateInstitutionInfo, updateBranch } = useBmt();
@@ -42,8 +98,8 @@ export default function AdminProfil() {
     setHasUnsavedChanges(true);
   };
 
-  // Handler Upload Foto Lokal (FileReader -> Data URL)
-  const handleFileUpload = (e) => {
+  // Handler Upload Foto (Batas 5 MB + Kompresi Otomatis WebP + Sinkronisasi Supabase Storage)
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -54,27 +110,53 @@ export default function AdminProfil() {
       return;
     }
 
-    // Batasan ukuran 4 MB agar performa tetap prima
-    if (file.size > 4 * 1024 * 1024) {
-      showToast('Ukuran file foto maksimal 4 MB.', 'error', {
+    // Batasan ukuran 5 MB sebelum dikompresi
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      showToast('Ukuran file foto maksimal 5 MB.', 'error', {
         title: 'Ukuran File Terlalu Besar',
       });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result;
-      if (typeof dataUrl === 'string') {
-        updatePhotoField('heroImage', dataUrl);
-        showToast(
-          'Foto berhasil dipilih. Klik "Simpan Perubahan" untuk menerapkan ke website.',
-          'info',
-          { title: 'Pratinjau Diperbarui' }
-        );
+    try {
+      const { dataUrl, blob } = await compressImageFile(file);
+      let finalImageUrl = dataUrl;
+
+      // Jika Supabase terkoneksi, unggah hasil kompresi ke Supabase Storage
+      if (supabase && blob) {
+        const filePath = `hero/hero-${Date.now()}.webp`;
+        const { error: uploadError } = await supabase.storage
+          .from('public-assets')
+          .upload(filePath, blob, { contentType: 'image/webp', upsert: true });
+
+        if (!uploadError) {
+          const { data: pubData } = supabase.storage
+            .from('public-assets')
+            .getPublicUrl(filePath);
+          if (pubData?.publicUrl) {
+            finalImageUrl = pubData.publicUrl;
+          }
+        }
       }
-    };
-    reader.readAsDataURL(file);
+
+      const originalKb = Math.round(file.size / 1024);
+      const compressedKb = blob
+        ? Math.round(blob.size / 1024)
+        : Math.round((dataUrl.length * 3) / 4 / 1024);
+
+      updatePhotoField('heroImage', finalImageUrl);
+      showToast(
+        `Foto otomatis dikompresi (${originalKb} KB → ${compressedKb} KB). Klik "SIMPAN" untuk menerapkan.`,
+        'info',
+        { title: 'Foto Siap & Terkompresi' }
+      );
+    } catch (err) {
+      showToast(err.message || 'Gagal memproses gambar.', 'error', {
+        title: 'Gagal Memproses Foto',
+      });
+    } finally {
+      e.target.value = '';
+    }
   };
 
   // Reset Foto ke Default
@@ -171,7 +253,7 @@ export default function AdminProfil() {
                     Unggah File Gambar dari Komputer / HP
                   </span>
                   <p className="text-[11px] text-stone-500 leading-normal">
-                    Mendukung format JPG, PNG, atau WEBP. Foto otomatis dikonversi dan disimpan.
+                    Mendukung JPG, PNG, atau WEBP (Maks. 5 MB). Foto otomatis dikompresi ke WebP ringan agar tidak membebani website.
                   </p>
                 </div>
                 <button
